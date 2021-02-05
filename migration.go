@@ -103,7 +103,7 @@ func CreateMigration(name, migrationType, dir string, t time.Time) (path string,
 	}
 
 	timestamp := t.Format("20060102150405")
-	filename := fmt.Sprintf("%v_%v.%v", timestamp, name, migrationType)
+	filename := fmt.Sprintf("%s_%s.%s", timestamp, name, migrationType)
 
 	fpath := filepath.Join(dir, filename)
 	tmpl := sqlMigrationTemplate
@@ -140,16 +140,16 @@ var sqlMigrationTemplate = template.Must(template.New("goose.sql-migration").Par
 
 `))
 var goSqlMigrationTemplate = template.Must(template.New("goose.go-migration").Parse(`
-package migration
+package tables
 
 import (
     "database/sql"
 
-    "github.com/pressly/goose"
+    "github.com/fleetdm/goose"
 )
 
 func init() {
-    goose.AddMigration(Up_{{.}}, Down_{{.}})
+    MigrationClient.AddMigration(Up_{{.}}, Down_{{.}})
 }
 
 func Up_{{.}}(tx *sql.Tx) error {
