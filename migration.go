@@ -144,8 +144,6 @@ package tables
 
 import (
     "database/sql"
-
-    "github.com/fleetdm/goose"
 )
 
 func init() {
