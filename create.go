@@ -8,11 +8,11 @@ import (
 
 // Create writes a new blank migration file.
 func Create(db *sql.DB, dir, name, migrationType string) error {
-	path, err := CreateMigration(name, migrationType, dir, time.Now())
+	paths, err := CreateMigration(name, migrationType, dir, time.Now())
 	if err != nil {
 		return err
 	}
-	fmt.Println(fmt.Sprintf("Created %s migration at %s", migrationType, path))
+	fmt.Printf("Created %s migration files at %v\n", migrationType, paths)
 
 	return nil
 }
