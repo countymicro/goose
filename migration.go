@@ -27,8 +27,6 @@ type Migration struct {
 	DownFn   func(*sql.Tx) error // Down go migration function
 }
 
-type migrateDirection bool
-
 const (
 	migrateUp   = true
 	migrateDown = !migrateUp
@@ -42,7 +40,7 @@ func (c *Client) runMigration(db *sql.DB, m *Migration, direction bool) error {
 	switch filepath.Ext(m.Source) {
 	case ".sql":
 		if err := c.runSQLMigration(db, m.Source, m.Version, direction); err != nil {
-			return errors.New(fmt.Sprintf("FAIL %v, quitting migration", err))
+			return fmt.Errorf("failed to run migration: %w", err)
 		}
 
 	case ".go":
@@ -96,10 +94,9 @@ func NumericComponent(name string) (int64, error) {
 	return n, e
 }
 
-func CreateMigration(name, migrationType, dir string, t time.Time) (path string, err error) {
-
+func CreateMigration(name, migrationType, dir string, t time.Time) ([]string, error) {
 	if migrationType != "go" && migrationType != "sql" {
-		return "", errors.New("migration type must be 'go' or 'sql'")
+		return nil, errors.New("migration type must be 'go' or 'sql'")
 	}
 
 	timestamp := t.Format("20060102150405")
@@ -111,9 +108,24 @@ func CreateMigration(name, migrationType, dir string, t time.Time) (path string,
 		tmpl = goSqlMigrationTemplate
 	}
 
-	path, err = writeTemplateToFile(fpath, tmpl, timestamp)
+	var paths []string
 
-	return
+	migrationPath, err := writeTemplateToFile(fpath, tmpl, timestamp)
+	if err != nil {
+		return nil, err
+	}
+	paths = append(paths, migrationPath)
+
+	if migrationType == "go" {
+		fpath := strings.Replace(filepath.Join(dir, filename), ".go", "_test.go", 1)
+		migrationTestPath, err := writeTemplateToFile(fpath, goSqlMigrationTestTemplate, timestamp)
+		if err != nil {
+			return nil, err
+		}
+		paths = append(paths, migrationTestPath)
+	}
+
+	return paths, nil
 }
 
 // Update the version table for the given migration,
@@ -158,3 +170,25 @@ func Down_{{.}}(tx *sql.Tx) error {
     return nil
 }
 `))
+
+var goSqlMigrationTestTemplate = template.Must(template.New("goose.go-migration").Parse(`
+package tables
+
+import "testing"
+
+func TestUp_{{.}}(t *testing.T) {
+	db := applyUpToPrev(t)
+
+	//
+	// Insert data to test the migration
+	//
+	// ...
+
+	// Apply current migration.
+	applyNext(t, db)
+
+	//
+	// Check data, insert new entries, e.g. to verify migration is safe.
+	//
+	// ...
+}`))
