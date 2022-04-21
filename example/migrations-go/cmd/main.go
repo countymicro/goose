@@ -7,9 +7,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/fleetdm/goose"
+	"github.com/mlipscombe/goose"
 
-	_ "github.com/fleetdm/goose/example/migrations-go"
+	_ "github.com/mlipscombe/goose/example/migrations-go"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"

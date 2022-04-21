@@ -3,7 +3,7 @@ package migrations
 import (
 	"database/sql"
 
-	"github.com/fleetdm/goose"
+	"github.com/mlipscombe/goose"
 )
 
 func init() {
