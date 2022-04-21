@@ -1,4 +1,4 @@
-module github.com/fleetdm/goose
+module github.com/mlipscombe/goose
 
 go 1.15
 
