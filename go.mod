@@ -1,4 +1,4 @@
-module github.com/mlipscombe/goose
+module github.com/countymicro/goose
 
 go 1.15
 

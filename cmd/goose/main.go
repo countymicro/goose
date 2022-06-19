@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mlipscombe/goose"
+	"github.com/countymicro/goose"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
